@@ -237,7 +237,7 @@ class Token {
             displayType = `<small class="badge text-bg-light">${this.subtype}</small>`;
         }
         if (this.textbox){
-            textBox = `<span title='${this.textbox}'>💬</span>`;
+            textBox = `<span onclick="showTokenText(this);" data-token-text="${this.textbox}" title='${this.textbox}'>💬</span>`;
         }
         if (this.power !== '' && this.toughness !== ''){
             powTough = `<span class="badge rounded-pill text-bg-dark">${this.power}/${this.toughness}</span>`;
@@ -497,6 +497,10 @@ function untaptoken(id){
 
 function taptoken(id){
     window.tokenapp.tapToken(id);
+}
+
+function showTokenText(el){
+    alert($(el).data('token-text'));
 }
 
 function addColumn(){window.tokenapp.addColumn()};
