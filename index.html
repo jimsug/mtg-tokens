@@ -23,6 +23,7 @@
                 <button type="button" class="d-none d-sm-inline btn btn-sm btn-light" onClick="removeColumn();">➖</button>
                 <span id="columntext" class="d-none d-sm-inline">Columns: 3</span>
                 <button type="button" class="d-none d-sm-inline btn btn-sm btn-light" onClick="addColumn();">➕</button>
+            <button type="button" class="btn btn-sm btn-secondary" onClick="untapAllTokens();">Untap All</button>
             <button type="button" class="btn btn-sm btn-danger" onClick="deleteAll();">Delete All</button>
             <button type="button" class="btn btn-sm btn-primary" onClick="newTokenModal();">+ Add</button>
             <button type="button" class="btn btn-sm btn-secondary" data-bs-toggle="modal" data-bs-target="#helpModal">❔ Help</button>
@@ -124,9 +125,14 @@
             <li>Click <span class='btn btn-sm btn-primary'>+ Add</span> in the navbar to add a new token</li>
             <li>Tap ➖ or ➕ on a token to add or increase the number of those tokens (untapped tokens will be removed first, then tapped tokens)</li>
             <li>Tap ➖ on a token with no tapped or untapped to remove it from the board</li>
-            <li>Tap on the token to edit it</li>
-            <li>💬 indicates that there is text in the token's textbox</li>
+            <li>The first number between the ➖ and ➕ is intended to indicate the number of untapped tokens of this kind, and the second number the number of tapped tokens</li>
+            <li>Tap the untapped number to untap a token; tap the tapped number to tap a token</li>
+            <li>Tap on ✏ on a token to edit it</li>
+            <li>💬 indicates that there is text in the token's textbox; tap to view it</li>
+            <li>Add/edit counters on a token from the edit menu &mdash; this can be set to any number, and is <em>intended</em> to show +1/+1 counters, but could show anything.</li>
         </ul>
+        <p>Hopefully the other features are roughly obvious, but if they're not, feel free to <a href="https://github.com/jimsug/mtg-tokens/issues/new" target="_blank">open an issue</a>.</p>
+        <p>Also, this works entirely offline &mdash; no data is ever sent anywhere, except you accessing this page via Github.</p>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-primary">Close</button>
@@ -405,7 +411,7 @@ class App {
 
     untapAllTokens(){
         for(let i = 0, l = this.tokens.length; i < l; i++){
-            this.replaceToken(i, this.tokens[idx].untapAll());
+            this.replaceToken(i, this.tokens[i].untapAll());
         }
     }
 
@@ -563,6 +569,10 @@ function tapAll(id){
 
 function untapAll(id){
     window.tokenapp.untapAll(id);
+}
+
+function untapAllTokens(){
+    window.tokenapp.untapAllTokens();
 }
 
 function showTokenText(el){
