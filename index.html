@@ -20,9 +20,9 @@
             <a class="navbar-brand" href="#">MTG Tokens</a>
         </div>
         <div>
-            <button type="button" class="btn btn-sm btn-light" onClick="removeColumn();">➖</button>
-            <span id="columntext">Columns: 3</span>
-            <button type="button" class="btn btn-sm btn-light" onClick="addColumn();">➕</button>
+                <button type="button" class="d-none d-sm-inline btn btn-sm btn-light" onClick="removeColumn();">➖</button>
+                <span id="columntext" class="d-none d-sm-inline">Columns: 3</span>
+                <button type="button" class="d-none d-sm-inline btn btn-sm btn-light" onClick="addColumn();">➕</button>
             <button type="button" class="btn btn-sm btn-danger" onClick="deleteAll();">Delete All</button>
             <button type="button" class="btn btn-sm btn-primary" onClick="newTokenModal();">+ Add</button>
             <button type="button" class="btn btn-sm btn-secondary" data-bs-toggle="modal" data-bs-target="#helpModal">❔ Help</button>
@@ -316,7 +316,7 @@ class App {
 
         let container = '';
         cols.forEach(function(val, idx){
-            container += '<div class="col"><ul class="list-group list-group-flush">';
+            container += '<div class="col-sm"><ul class="list-group list-group-flush">';
             container += cols[idx].join("")
             container += '</ul></div>'
         });
