@@ -92,6 +92,14 @@
             <input type="text" class="form-control" id="tokenform-tokenname">
             <label for="tokenform-tokenname">Token name</label>
         </div>
+        <div class='input-group mb-3'>
+        <span class="input-group-text mb-3" onclick="crementToken(-1);">-</span>
+        <div class="form-floating mb-3">
+            <input type="number" class="form-control" id="tokenform-counters">
+            <label for="tokenform-toughness">Counters</label>
+        </div>
+        <span class="input-group-text mb-3" onclick="crementToken(1);">+</span>
+        </div>
 
       </div>
       <div class="modal-footer">
@@ -156,10 +164,10 @@ class Token {
         this.textbox = obj.textbox;
         this.power = obj.power;
         this.toughness = obj.toughness;
-        this.tokenname = obj.tokenname;
+        this.tokenname = obj.tokenname ?? obj.subtype;
         this.tapped = obj.tapped ?? 0;
         this.untapped = obj.untapped ?? 1;
-        this.cntr = obj.untapped ?? 0;
+        this.cntr = obj.counters ?? 0;
     }
 
     addToken(){
@@ -192,6 +200,25 @@ class Token {
         this.power = props.power ?? this.power;
         this.toughness = props.toughness ?? this.toughness;
         this.tokenname = props.tokenname ?? this.tokenname;
+        this.cntr = props.counters ?? this.cntr;
+        return this;
+    }
+
+    untapAll(){
+        this.untapped += this.tapped;
+        this.tapped = 0;
+        return this;
+    }
+
+    tapAll(){
+        this.tapped += this.untapped;
+        this.untapped = 0;
+        return this;
+    }
+
+    reduceAll(){
+        this.untapped = 0;
+        this.tapped = 0;
         return this;
     }
 
@@ -216,23 +243,25 @@ class Token {
             'G':'success'
         };
 
-        let colourClass = 'secondary';
+        let colourClass = maps[this.colour];
         let displayType = '';
         let textBox = '';
         let powTough = '';
         let tokenname = this.tokenname;
+        let counters = '';
 
         if (!this.tokenname) {
             tokenname = this.subtype;
         }
 
-        try {
-            colourClass = maps[this.colour];
-        } catch(e){
-            if (this.colour.length > 1) {
+        if(!colourClass){
+            if (this.colour.length == 0){
+                colourClass = 'secondary';
+            } else {
                 colourClass = 'warning';
             }
         }
+
         if (tokenname !== this.subtype){
             displayType = `<small class="badge text-bg-light">${this.subtype}</small>`;
         }
@@ -242,8 +271,12 @@ class Token {
         if (this.power !== '' && this.toughness !== ''){
             powTough = `<span class="badge rounded-pill text-bg-dark">${this.power}/${this.toughness}</span>`;
         }
+        if (this.cntr !== 0) {
+            counters = `<span class="badge text-bg-secondary">${this.cntr}</span>`;
+        }
 
-        return `<li class="list-group-item d-flex justify-content-between align-items-center list-group-item-${colourClass}"><span>${tokenname}  ${displayType} ${textBox}</span><span>${powTough} <span onclick="reduceToken(${id});">➖</span> <span onclick="untaptoken(${id});" class="badge text-bg-light">${this.untapped}</span> <span onclick="taptoken(${id});" class="badge text-bg-dark">${this.tapped}</span> <span onclick="addtoken(${id});">➕</span><span onclick="editTokenModal(${id});">✏</span></span></li>`;
+
+        return `<li class="list-group-item d-flex justify-content-between align-items-center list-group-item-${colourClass}"><span>${tokenname}  ${displayType} ${textBox}</span><span>${counters} ${powTough} <span ondblclick="reduceTokenAll(${id});" onclick="reduceToken(${id});">➖</span> <span onclick="untaptoken(${id});" ondblclick="untapAll(${id});" class="badge text-bg-light">${this.untapped}</span> <span onclick="taptoken(${id});" ondblclick="tapAll(${id});" class="badge text-bg-dark">${this.tapped}</span> <span onclick="addtoken(${id});">➕</span><span onclick="editTokenModal(${id});">✏</span></span></li>`;
     }
 }
 
@@ -325,15 +358,13 @@ class App {
         return;
     }
 
-    getToken(idx){
-        return this.tokens[idx];
+    replaceToken(idx, token) {
+        this.tokens[idx] = token;
+        this.saveLocalStorage();
     }
 
-    generateExamples() {
-        let angel = new Token("Creature", "Angel", "W", "Flying, Vigilance", 4, 4);
-        let soldier = new Token("Creature", "Soldier", "W", "", 1, 1);
-        this.tokens = [angel, soldier];
-        this.saveLocalStorage();
+    getToken(idx){
+        return this.tokens[idx];
     }
 
     saveLocalStorage(){
@@ -357,29 +388,41 @@ class App {
     }
 
     addToken(idx){
-        this.tokens[idx] = this.tokens[idx].addToken();
-        this.saveLocalStorage();
+        this.replaceToken(idx, this.tokens[idx].addToken());
+    }
+
+    reduceTokenAll(idx) {
+        this.replaceToken(idx, this.tokens[idx].reduceAll());
+    }
+
+    tapAll(idx) {
+        this.replaceToken(idx, this.tokens[idx].tapAll());
+    }
+
+    untapAll(idx) {
+        this.replaceToken(idx, this.tokens[idx].untapAll());
+    }
+
+    untapAllTokens(){
+        for(let i = 0, l = this.tokens.length; i < l; i++){
+            this.replaceToken(i, this.tokens[idx].untapAll());
+        }
     }
 
     removeToken(idx){
-        this.tokens[idx] = this.tokens[idx].removeToken();
-        this.saveLocalStorage();
+        this.replaceToken(idx, this.tokens[idx].removeToken());
     }
 
     untapToken(idx){
-        this.tokens[idx] = this.tokens[idx].untapToken();
-        this.saveLocalStorage();
+        this.replaceToken(idx, this.tokens[idx].untapToken());
     }
 
     tapToken(idx){
-        this.tokens[idx] = this.tokens[idx].tapToken();
-        this.saveLocalStorage();
+        this.replaceToken(idx, this.tokens[idx].tapToken());
     }
 
     updateToken(idx, props){
-        console.debug(idx);
-        console.debug(props);
-        this.tokens[idx] = this.tokens[idx].updateToken(props);
+        this.replaceToken(idx, this.tokens[idx].updateToken(props));
     }
 
     deleteAll(){
@@ -411,10 +454,11 @@ function editTokenModal(idx){
     $("#tokenform-power").val(token.power);
     $("#tokenform-toughness").val(token.toughness);
     $("#tokenform-tokenname").val(token.tokenname);
+    $("#tokenform-counters").val(token.cntr);
     $("#btnEditToken").removeClass('d-none');
     $("#btnDeleteToken").removeClass('d-none');
-    $("#btnEditToken").data("id", idx);
-    $("#btnDeleteToken").data("id", idx);
+    $("#btnEditToken").attr("data-id", idx);
+    $("#btnDeleteToken").attr("data-id", idx);
     m.show();
 }
 
@@ -432,6 +476,7 @@ function savenewtoken(){
     let power = $("#tokenform-power").val().trim();
     let toughness = $("#tokenform-toughness").val().trim();
     let tokenname = $("#tokenform-tokenname").val().trim() ?? subtype;
+    let counters = $("#tokenform-counters").val();
 
     $("input[name='colourselect']:checked").each(function(i,v){
         colour += $(v).is(":checked") ? v.value : "";
@@ -441,8 +486,8 @@ function savenewtoken(){
     m.hide();
 }
 
-function updateToken(){
-    let id = $(this).data('id');
+function updateToken(el){
+    let id = $(el).data('id');
     let tokentype = $("#tokenform-type").val().trim();
     let subtype = $("#tokenform-subtype").val().trim();
     let colour = '';
@@ -450,17 +495,26 @@ function updateToken(){
     let power = $("#tokenform-power").val().trim();
     let toughness = $("#tokenform-toughness").val().trim();
     let tokenname = $("#tokenform-tokenname").val().trim() ?? subtype;
+    let counters = $("#tokenform-counters").val();
 
     $("input[name='colourselect']:checked").each(function(i,v){
         colour += $(v).is(":checked") ? v.value : "";
     });
 
-    window.tokenapp.updateToken(id, {tokentype:tokentype, subtype:subtype, colour:colour, textbox:textbox, power:power, toughness:toughness, tokenname:tokenname});
+    window.tokenapp.updateToken(id, {tokentype:tokentype, subtype:subtype, colour:colour, textbox:textbox, power:power, toughness:toughness, tokenname:tokenname, counters:counters});
     m.hide();
     $("#btnEditToken").data("id", '');
 }
 
 const m = new bootstrap.Modal("#tokenModal");
+
+function crementToken(vle){
+    try {
+        $("#tokenform-counters").val(parseInt($("#tokenform-counters").val())+vle);
+    } catch(e) {
+        $("#tokenform-counters").val(0+vle);
+    }
+}
 
 function editToken(id){
     window.tokenapp.editToken(id);
@@ -475,6 +529,10 @@ function reduceToken(id){
         removetoken(id);
     }
     window.tokenapp.removeToken(id);
+}
+
+function reduceTokenAll(id){
+    window.tokenapp.reduceTokenAll(id);
 }
 
 function deleteAll(){
@@ -497,6 +555,14 @@ function untaptoken(id){
 
 function taptoken(id){
     window.tokenapp.tapToken(id);
+}
+
+function tapAll(id){
+    window.tokenapp.tapAll(id);
+}
+
+function untapAll(id){
+    window.tokenapp.untapAll(id);
 }
 
 function showTokenText(el){
