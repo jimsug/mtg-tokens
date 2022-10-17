@@ -243,7 +243,7 @@ class Token {
             powTough = `<span class="badge rounded-pill text-bg-dark">${this.power}/${this.toughness}</span>`;
         }
 
-        return `<li class="list-group-item d-flex justify-content-between align-items-center list-group-item-${colourClass}"><span>${tokenname}  ${displayType} ${textBox}</span><span>${powTough} <span onclick="removetoken(${id});">➖</span> <span onclick="untaptoken(${id});" class="badge text-bg-light">${this.untapped}</span> <span onclick="taptoken(${id});" class="badge text-bg-dark">${this.tapped}</span> <span onclick="addtoken(${id});">➕</span><span onclick="editTokenModal(${id});">✏</span></span></li>`;
+        return `<li class="list-group-item d-flex justify-content-between align-items-center list-group-item-${colourClass}"><span>${tokenname}  ${displayType} ${textBox}</span><span>${powTough} <span onclick="reduceToken(${id});">➖</span> <span onclick="untaptoken(${id});" class="badge text-bg-light">${this.untapped}</span> <span onclick="taptoken(${id});" class="badge text-bg-dark">${this.tapped}</span> <span onclick="addtoken(${id});">➕</span><span onclick="editTokenModal(${id});">✏</span></span></li>`;
     }
 }
 
@@ -468,9 +468,13 @@ function editToken(id){
 
 function addtoken(id){
     window.tokenapp.addToken(id);
+}
+
+function reduceToken(id){
     if (window.tokenapp.tokens[id].untapped == 0 && window.tokenapp.tokens[id].tapped == 0) {
         removetoken(id);
     }
+    window.tokenapp.removeToken(id);
 }
 
 function deleteAll(){
