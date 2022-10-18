@@ -61,8 +61,12 @@
                 --width-end: 100%;
             }
 
-            body {
+            .body-bg-light {
                 background-color: #F9F8F4;
+            }
+
+            .body-bg-dark {
+                background-color: #000;
             }
             .token-W{
                 background: var(--token-white);
@@ -350,19 +354,20 @@
         </style>
     </head>
 <body>
-<nav class="navbar sticky-top bg-light">
+<nav id="navbar" class="navbar sticky-top">
     <div class="container-fluid">
         <div class="flex-grow-1">
             <a class="navbar-brand" href="#">MTG Tokens</a>
         </div>
         <div>
+            <button type="button" class="btn btn-sm btn-secondary" onClick="toggleDarkMode();">🌓</button>
                 <button type="button" class="d-none d-sm-inline btn btn-sm btn-light" onClick="removeColumn();">➖</button>
-                <span id="columntext" class="d-none d-sm-inline">Columns: 3</span>
+                <button type="button" id="columntext" class="d-none d-sm-inline btn btn-sm btn-light">Columns: 3</button>
                 <button type="button" class="d-none d-sm-inline btn btn-sm btn-light" onClick="addColumn();">➕</button>
             <button type="button" class="btn btn-sm btn-secondary" onClick="untapAllTokens();">Untap All</button>
             <button type="button" class="btn btn-sm btn-danger" onClick="deleteAll();">Delete All</button>
             <button type="button" class="btn btn-sm btn-primary" onClick="newTokenModal();">+ Add</button>
-            <button type="button" class="btn btn-sm btn-secondary" data-bs-toggle="modal" data-bs-target="#helpModal">❔ Help</button>
+            <button type="button" class="btn btn-sm btn-secondary" data-bs-toggle="modal" data-bs-target="#helpModal">❔</button>
         </div>
     </div>
 </nav>
@@ -626,6 +631,7 @@ class App {
         this.columns = 3;
         this.tokens = [];
         this.favourites = [];
+        this.darkMode = false;
     }
 
     loadFromConfig(config){
@@ -651,6 +657,7 @@ class App {
             this.columns = 3;
         }
         this.tokens = tokens;
+        this.darkMode = config['darkMode'] ?? false;
         this.render();
     }
 
@@ -669,10 +676,25 @@ class App {
     render(){
         this.renderTokens();
         this.renderColumnText();
+        this.renderDarkMode();
     }
 
     renderColumnText(){
         $("#columntext").html(`Columns: ${this.columns}`);
+    }
+
+    renderDarkMode(){
+        if(this.darkMode){
+            $("#navbar").addClass("navbar-dark").addClass("bg-dark");
+            $("body").addClass("body-bg-dark");
+            $("body").removeClass("body-bg-light");
+            $("#columntext").removeClass("btn-light").addClass("btn-dark");
+        } else {
+            $("#navbar").removeClass("navbar-dark").removeClass("bg-dark");
+            $("body").removeClass("body-bg-dark");
+            $("body").addClass("body-bg-light");
+            $("#columntext").addClass("btn-light").removeClass("btn-dark");
+        }
     }
 
     renderTokens() {
@@ -770,6 +792,11 @@ class App {
         this.tokens = [];
         this.saveLocalStorage();
         this.renderTokens();
+    }
+
+    toggleDarkMode(){
+        this.darkMode = !this.darkMode;
+        this.saveLocalStorage();
     }
 
 }
@@ -917,6 +944,11 @@ function showTokenText(el){
 function addColumn(){window.tokenapp.addColumn()};
 function removeColumn(){window.tokenapp.removeColumn()};
 
+function toggleDarkMode(){
+    console.debug("toggle Dark mode:" + window.tokenapp.darkMode);
+    window.tokenapp.toggleDarkMode();
+}
+
 $(document).ready(function(){
     let appConfig = {};
     try{
@@ -925,7 +957,8 @@ $(document).ready(function(){
         appConfig = {
             tokens:[],
             favourites:[],
-            columns: 3
+            columns: 3,
+            darkMode: false
         }
     }
     window.tokenapp = new App();
