@@ -447,7 +447,7 @@
         </div>
         <span class="input-group-text mb-3" onclick="crementToken(1);">+</span>
         </div>
-        <input type="hidden" name="id" id='tokenid'>
+        <input type="hidden" name="id" id="tokenid">
 
       </div>
       <div class="modal-footer">
@@ -729,7 +729,6 @@ class App {
         container += '<div class="row d-flex d-sm-none"><div class="col-sm"><ul class="list-group list-group-flush">';
         container += singlecol.join("")
         container += '</ul></div></div>'
-        console.log(container);
         $("#board").html(container);
         return;
     }
@@ -927,7 +926,7 @@ function deletetoken(el){
 }
 
 function removetoken(id){
-    window.tokenapp.deleteToken(id);
+    window.tokenapp.deleteToken($("#tokenid").val());
 }
 
 function untaptoken(id){
