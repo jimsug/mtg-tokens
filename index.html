@@ -357,24 +357,29 @@
 <nav id="navbar" class="navbar sticky-top">
     <div class="container-fluid">
         <div class="flex-grow-1">
-            <a class="navbar-brand" href="#">MTG Tokens</a>
+            <span class="navbar-brand">MTG Tokens</span>
         </div>
         <div>
+            <div class='btn-group'>
+            <button type="button" class="btn btn-sm btn-dark" title="Toggle fullscreen" onClick="toggleFullScreen();">⛶</button>
             <button type="button" class="btn btn-sm btn-secondary" onClick="toggleDarkMode();">🌓</button>
-                <button type="button" class="d-none d-sm-inline btn btn-sm btn-light" onClick="removeColumn();">➖</button>
-                <button type="button" id="columntext" class="d-none d-sm-inline btn btn-sm btn-light">Columns: 3</button>
-                <button type="button" class="d-none d-sm-inline btn btn-sm btn-light" onClick="addColumn();">➕</button>
-            <button type="button" class="btn btn-sm btn-secondary" onClick="untapAllTokens();">Untap All</button>
-            <button type="button" class="btn btn-sm btn-danger" onClick="deleteAll();">Delete All</button>
-            <button type="button" class="btn btn-sm btn-primary" onClick="newTokenModal();">+ Add</button>
+            </div>
+            <div class='btn-group'>
+            <button type="button" class="d-none d-sm-inline btn btn-sm btn-light" onClick="removeColumn();">➖</button>
+            <button type="button" id="columntext" class="d-none d-sm-inline btn btn-sm btn-light">: 3</button>
+            <button type="button" class="d-none d-sm-inline btn btn-sm btn-light" onClick="addColumn();">➕</button>
+            </div>
+            <div class='btn-group'>
+            <button type="button" class="btn btn-sm btn-secondary" title="Untap All" onClick="untapAllTokens();">Untap All</button>
+            <button type="button" class="btn btn-sm btn-danger" title="Delete All" onClick="deleteAll();">🗑 All</button>
+            <button type="button" class="btn btn-sm btn-primary" onClick="newTokenModal();">Add</button>
+            </div>
             <button type="button" class="btn btn-sm btn-secondary" data-bs-toggle="modal" data-bs-target="#helpModal">❔</button>
         </div>
     </div>
 </nav>
 <!-- Main container -->
-<div class="container-fluid">
-    <div id='board' class='row'>
-    </div>
+<div id='board' class="container-fluid">
 </div>
 
 <div class="modal fade" id="tokenModal" tabindex="-1" aria-labelledby="tokenAddOrEditModal" aria-hidden="true">
@@ -699,6 +704,8 @@ class App {
 
     renderTokens() {
 
+        let singlecol = [];
+
         let cols = []
 
         for (let i = 0, l = this.columns; i < l; i++) {
@@ -707,16 +714,22 @@ class App {
 
         let columns = this.columns;
         this.tokens.forEach(function(val,idx){
-            cols[idx % columns].push(val.render(idx));
+            let rend = val.render(idx);
+            cols[idx % columns].push(rend);
+            singlecol.push(rend);
         });
 
-        let container = '';
+        let container = '<div class="row d-none d-sm-flex">';
         cols.forEach(function(val, idx){
             container += '<div class="col-sm"><ul class="list-group list-group-flush">';
-            container += cols[idx].join("")
-            container += '</ul></div>'
+            container += cols[idx].join("");
+            container += '</ul></div>';
         });
-
+        container += '</div>';
+        container += '<div class="row d-flex d-sm-none"><div class="col-sm"><ul class="list-group list-group-flush">';
+        container += singlecol.join("")
+        container += '</ul></div></div>'
+        console.log(container);
         $("#board").html(container);
         return;
     }
@@ -957,7 +970,7 @@ $(document).ready(function(){
         appConfig = {
             tokens:[],
             favourites:[],
-            columns: 3,
+            columns: 1,
             darkMode: false
         }
     }
@@ -965,6 +978,30 @@ $(document).ready(function(){
     window.tokenapp.loadFromConfig(appConfig);
     window.tokenapp.render();
 });
+
+function toggleFullScreen(){
+    let elem = document.documentElement;
+    if (window.tokenapp.fullscreen) {
+        window.tokenapp.fullscreen = false;
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
+        } else if (document.webkitExitFullscreen) { /* Safari */
+            document.webkitExitFullscreen();
+        } else if (document.msExitFullscreen) { /* IE11 */
+            document.msExitFullscreen();
+        }
+        /* disable */
+    } else {
+        window.tokenapp.fullscreen = true;
+        if (elem.requestFullscreen) {
+            elem.requestFullscreen();
+        } else if (elem.webkitRequestFullscreen) { /* Safari */
+            elem.webkitRequestFullscreen();
+        } else if (elem.msRequestFullscreen) { /* IE11 */
+            elem.msRequestFullscreen();
+        }
+    }
+}
 
 </script>
 </body>
