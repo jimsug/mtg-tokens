@@ -996,7 +996,7 @@ function toggleFullScreen(){
 function keepAwake(){
     if ('wakeLock' in navigator){
         try{
-            wakeLock = await navigator.wakeLock.request('screen');
+            wakeLock = navigator.wakeLock.request('screen');
         } catch (err) {
             return;
         }
